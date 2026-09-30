@@ -1,0 +1,19 @@
+# dependencies & build output
+node_modules
+dist
+
+# environment / secrets (ถ้าวันหนึ่งมีการใช้ API key ห้าม commit)
+.env
+.env.*
+!.env.example
+
+# logs & OS / editor files
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# ค่าตั้งเฉพาะเครื่องของ Claude Code
+.claude/
