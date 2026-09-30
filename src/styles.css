@@ -174,7 +174,7 @@ button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
     linear-gradient(180deg, rgba(12, 20, 60, 0.35), rgba(5, 8, 26, 0.2));
 }
 .mode-detail .detail-backdrop, .mode-flying .detail-backdrop { opacity: 1; }
-@media (min-width: 901px) { .detail-backdrop { --bx: calc(50% - 200px); } }
+@media (min-width: 901px) { .detail-backdrop { --bx: calc(50% - 200px * var(--ui, 1)); } }
 
 /* ---------- Detail view ---------- */
 .detail { position: absolute; inset: 0; pointer-events: none; }
@@ -272,23 +272,49 @@ button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .compare { display: flex; align-items: center; gap: 18px; --i: 8; }
 .compare-vis { display: flex; align-items: flex-end; gap: 10px; min-width: 96px; justify-content: center; }
 
-@media (max-width: 900px) {
-  .back-btn { top: 14px; left: 14px; padding: 7px 12px 7px 9px; font-size: 12.5px; }
-  .detail-title { gap: 10px; }
-  .detail-title h2 { font-size: 38px; }
-  .detail-title p { font-size: 12.5px; margin-top: 4px; }
-  .back-btn span { display: none; }
-  .nav-arrow { width: 32px; height: 32px; }
-  .temp-badge { width: 62px; height: 62px; font-size: 14px; }
-  .cards {
-    top: var(--sheet-top, 62%); left: 12px; right: 12px; bottom: 0; width: auto; padding-bottom: 30px;
-    mask-image: linear-gradient(180deg, transparent, #000 16px, #000 calc(100% - 30px), transparent);
-    padding-top: 14px;
-  }
-  .card { padding: 13px 16px; border-radius: 20px; }
-  .card-icon { width: 40px; height: 40px; }
-  @keyframes cardIn { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+/* แบบแคบ (มือถือ/แท็บเล็ตแนวตั้ง): JS ใส่ class .narrow ให้ตาม detailLayout */
+.detail.narrow .back-btn { top: 14px; left: 14px; padding: 7px 12px 7px 9px; font-size: 12.5px; }
+.detail.narrow .back-btn span { display: none; }
+.detail.narrow .detail-title { gap: 10px; }
+.detail.narrow .detail-title h2 { font-size: clamp(30px, 10vw, 44px); }
+.detail.narrow .detail-title p { font-size: 12.5px; margin-top: 4px; }
+.detail.narrow .nav-arrow { width: 32px; height: 32px; }
+.detail.narrow .temp-badge { width: 62px; height: 62px; font-size: 14px; }
+.detail.narrow .cards {
+  top: var(--sheet-top, 62%); left: 12px; right: 12px; bottom: 0; width: auto; padding-bottom: 30px;
+  mask-image: linear-gradient(180deg, transparent, #000 16px, #000 calc(100% - 30px), transparent);
+  padding-top: 14px;
 }
+.detail.narrow .card { padding: 13px 16px; border-radius: 20px; animation-name: cardUp; }
+.detail.narrow .card-icon { width: 40px; height: 40px; }
+@keyframes cardUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+
+/* มือถือแนวนอน: ดาวซ้าย การ์ดขวา แบบย่อขนาด */
+.detail.compact .back-btn { top: 10px; left: 10px; padding: 6px 10px; font-size: 12px; }
+.detail.compact .back-btn span { display: none; }
+.detail.compact .detail-title { gap: 8px; }
+.detail.compact .detail-title h2 { font-size: 30px; }
+.detail.compact .detail-title p { font-size: 11.5px; margin-top: 2px; }
+.detail.compact .nav-arrow { width: 28px; height: 28px; }
+.detail.compact .temp-badge { width: 52px; height: 52px; font-size: 12.5px; }
+.detail.compact .distance { gap: 2px; }
+.detail.compact .distance-label, .detail.compact .distance-sub { font-size: 10.5px; }
+.detail.compact .distance-value { font-size: 14px; }
+.detail.compact .distance-track { margin-top: 2px; }
+.detail.compact .cards { top: 10px; right: 10px; bottom: 10px; }
+.detail.compact .card { padding: 11px 14px; border-radius: 18px; }
+.detail.compact .card-icon { width: 36px; height: 36px; }
+.detail.compact .card-value { font-size: 15px; }
+
+/* จอใหญ่/ทีวี: ขยายตาม --ui (ตั้งจาก JS ใน ui.js) */
+.detail.wide:not(.compact) .back-btn { zoom: var(--ui, 1); }
+.detail.wide:not(.compact) .detail-title h2 { font-size: calc(clamp(38px, 6vw, 72px) * var(--ui, 1)); }
+.detail.wide:not(.compact) .detail-title p { font-size: calc(15px * var(--ui, 1)); }
+.detail.wide:not(.compact) .nav-arrow { zoom: var(--ui, 1); }
+.detail.wide:not(.compact) .temp-badge { width: calc(78px * var(--ui, 1)); height: calc(78px * var(--ui, 1)); font-size: calc(17px * var(--ui, 1)); }
+.detail.wide:not(.compact) .distance { scale: var(--ui, 1); transform-origin: top center; }
+.detail.wide:not(.compact) .cards { top: calc(20px * var(--ui, 1)); right: calc(20px * var(--ui, 1)); bottom: calc(20px * var(--ui, 1)); }
+.detail.wide:not(.compact) .card { zoom: var(--ui, 1); }
 
 /* ---------- Home / cover ---------- */
 .home {
@@ -443,4 +469,59 @@ button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 @media (max-width: 600px) {
   .sound-label { display: none; }
   .sound-btn { padding: 8px 10px; }
+}
+
+/* ---------- จอใหญ่/ทีวี: ขยายแผงควบคุมของหน้าสำรวจ 3D ---------- */
+@media (min-width: 1600px) {
+  .brand { transform: scale(var(--ui, 1)); transform-origin: top left; }
+  .date { transform: scale(var(--ui, 1)); transform-origin: top right; }
+  .rail { transform: translateY(-50%) scale(var(--ui, 1)); transform-origin: left center; max-height: calc((100vh - 200px) / var(--ui, 1)); }
+  .timebar { transform: translateX(-50%) scale(var(--ui, 1)); transform-origin: bottom center; }
+  .hint { bottom: calc(92px * var(--ui, 1)); font-size: calc(12px * var(--ui, 1)); }
+  .label { font-size: calc(12px * var(--ui, 1)); }
+  .home-content, .sound-btn.floating, .home-footer { zoom: var(--ui, 1); }
+}
+
+/* ---------- มือถือแนวนอน / จอเตี้ย ---------- */
+@media (max-height: 520px) and (orientation: landscape) {
+  .brand p, .date-delta, .hint, .speed-caption, .divider { display: none; }
+  .brand { top: 12px; left: 14px; }
+  .brand h1 { font-size: 15px; }
+  .date { top: 10px; right: 12px; padding: 6px 12px; }
+  .date-day { font-size: 22px; }
+  .timebar { bottom: 10px; gap: 8px; padding: 5px; }
+  .play { width: 38px; height: 38px; }
+  .segmented button { padding: 3px 9px; font-size: 12px; }
+  .icon-btn { width: 32px; height: 32px; }
+  .home-content { margin-top: 0; }
+  .home-eyebrow { display: none; }
+  .home-title { font-size: 52px; margin-top: 0; }
+  .home-sub { margin-top: 12px; font-size: 13px; }
+  .start-btn { margin-top: 16px; height: 46px; }
+  .home-footer { display: none; }
+  .home-planet { top: 80%; }
+}
+
+@media (max-height: 520px) and (orientation: landscape) and (min-width: 761px) {
+  .rail { top: 60px; bottom: 64px; transform: none; max-height: none; left: 12px; }
+  .rail-item { padding: 5px; }
+  .orb.mini { width: 22px; height: 22px; }
+}
+
+/* ---------- มือถือจอแคบ: แถบเวลาแบ่ง 2 แถว ให้ปุ่มเครื่องมือไม่ตกขอบ ---------- */
+@media (max-width: 480px) {
+  .timebar { flex-wrap: wrap; justify-content: space-between; row-gap: 6px; overflow: visible; }
+  .timebar .speed { order: 3; flex-basis: 100%; }
+  .timebar .segmented { justify-content: space-between; }
+  .timebar .tools { gap: 2px; }
+  .rail { bottom: 12px; }
+  .timebar { bottom: 70px; }
+}
+
+/* ---------- มือถือจอเล็กมาก (≤ 360px) ---------- */
+@media (max-width: 360px) {
+  .brand h1 span { display: none; }
+  .date { padding: 5px 10px; }
+  .date-month { font-size: 13px; }
+  .segmented button { padding: 4px 7px; font-size: 11.5px; }
 }

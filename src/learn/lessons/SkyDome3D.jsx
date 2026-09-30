@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { OrbitControls, Line } from '@react-three/drei'
 import * as THREE from 'three'
+import { canvasDpr } from '../../ui'
 import { CONSTELLATIONS, BRIGHT_STARS, ECLIPTIC, altAz, centroid } from '../constellations'
 
 // ท้องฟ้าจำลอง 3 มิติ: ผู้ดูยืนอยู่จุดศูนย์กลางของทรงกลมฟ้า ลากเพื่อหมุนมองรอบตัว
@@ -209,7 +210,55 @@ function CameraLook({ look, controlsRef, hudRef, onViewAz }) {
   return null
 }
 
-function Sky({ lst, selected, onPick, show }) {
+// แตะเลือกกลุ่มดาว: หาทิศที่แตะ แล้วเลือกกลุ่มดาวที่จุดศูนย์กลางใกล้ที่สุด
+// (แม่นกว่าการ raycast ป้ายชื่อ และพื้นที่แตะใหญ่ เหมาะกับจอสัมผัส)
+function TapPicker({ lst, onPick }) {
+  const { camera, gl } = useThree()
+  const pickRef = useRef(onPick)
+  pickRef.current = onPick
+  const targets = useMemo(
+    () =>
+      CONSTELLATIONS.map((c) => {
+        const cen = centroid(c)
+        const p = altAz(cen.ra, cen.dec, lst)
+        return { id: c.id, up: p.alt > 0, dir: toVec(p.alt, p.az, 1).normalize() }
+      }),
+    [lst],
+  )
+
+  useEffect(() => {
+    const el = gl.domElement
+    let down = null
+    const onDown = (e) => (down = { x: e.clientX, y: e.clientY })
+    // ฟัง pointerup ที่ window เพราะ OrbitControls จับ pointer (pointer capture) ไว้ที่ element อื่น
+    const onUp = (e) => {
+      const start = down
+      down = null
+      if (!start || Math.hypot(e.clientX - start.x, e.clientY - start.y) > 6) return
+      const r = el.getBoundingClientRect()
+      const ndc = new THREE.Vector2(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1)
+      const ray = new THREE.Raycaster()
+      ray.setFromCamera(ndc, camera)
+      const limit = Math.max(4, camera.fov * 0.09) * RAD
+      let best = null
+      targets.forEach((t) => {
+        if (!t.up) return
+        const a = t.dir.angleTo(ray.ray.direction)
+        if (a < limit && (!best || a < best.a)) best = { id: t.id, a }
+      })
+      if (best) pickRef.current(best.id)
+    }
+    el.addEventListener('pointerdown', onDown)
+    window.addEventListener('pointerup', onUp)
+    return () => {
+      el.removeEventListener('pointerdown', onDown)
+      window.removeEventListener('pointerup', onUp)
+    }
+  }, [gl, camera, targets])
+  return null
+}
+
+function Sky({ lst, selected, show }) {
   const starTex = useMemo(starTexture, [])
 
   const data = useMemo(() => {
@@ -278,7 +327,6 @@ function Sky({ lst, selected, onPick, show }) {
           color={c.id === selected ? '#ffffff' : '#a9bbef'}
           weight={c.id === selected ? 700 : 500}
           bg={c.id === selected ? 'rgba(40,60,140,0.75)' : null}
-          onClick={(e) => { e.stopPropagation(); onPick(c.id) }}
         />
       ))}
       {show.names && data.bright.map(({ st, pos }) => (
@@ -298,9 +346,10 @@ export default function SkyDome3D({ lst, look, selected, onPick, show, onViewAz 
 
   return (
     <div className="sky3d">
-      <Canvas camera={{ fov: 70, near: 0.001, far: 500, position: [0, 0, -0.01] }} dpr={[1, 2]}>
+      <Canvas camera={{ fov: 70, near: 0.001, far: 500, position: [0, 0, -0.01] }} dpr={canvasDpr()}>
         <color attach="background" args={['#040818']} />
-        <Sky lst={lst} selected={selected} onPick={onPick} show={show} />
+        <Sky lst={lst} selected={selected} show={show} />
+        <TapPicker lst={lst} onPick={onPick} />
         <Ground />
         {dirLabels.map((d) => (
           <Label

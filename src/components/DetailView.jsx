@@ -89,7 +89,7 @@ export default function DetailView({ body, days, layout, anchorRefs, onBack, onP
   ]
 
   return (
-    <div className="detail" style={{ '--c': body.color }} key={body.id}>
+    <div className={`detail ${layout.wide ? 'wide' : 'narrow'} ${layout.compact ? 'compact' : ''}`} style={{ '--c': body.color }} key={body.id}>
       <button className="back-btn" onClick={onBack}>
         <ArrowLeft /> <span>ระบบสุริยะ</span>
       </button>
@@ -110,7 +110,7 @@ export default function DetailView({ body, days, layout, anchorRefs, onBack, onP
 
       <Distance body={body} days={days} layout={layout} />
 
-      <aside className="cards" style={{ '--sheet-top': `${layout.cy + layout.radiusPx + 140}px` }}>
+      <aside className="cards" style={layout.wide ? { width: layout.cardW } : { '--sheet-top': `${layout.cy + layout.radiusPx + 140}px` }}>
         <div className="card desc-card">
           <span className="card-label">{body.type}</span>
           <p>{body.description}</p>

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState, Suspense } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { useProgress } from '@react-three/drei'
 import SoundToggle from '../audio/SoundToggle'
+import { canvasDpr } from '../ui'
 import SolarScene from '../components/SolarScene'
 import DetailView from '../components/DetailView'
 import { BODIES, J2000 } from '../data/planets'
@@ -94,7 +95,7 @@ export default function Explorer({ initial = null, onExit }) {
 
   return (
     <div className={`app mode-${mode}`}>
-      <Canvas camera={{ position: [0, 320, 520], fov: 45, near: 0.1, far: 2000 }} dpr={[1, 2]}>
+      <Canvas camera={{ position: [0, 320, 520], fov: 45, near: 0.1, far: 2000 }} dpr={canvasDpr()}>
         <Suspense fallback={null}>
           <SolarScene
             started

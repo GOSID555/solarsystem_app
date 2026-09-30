@@ -716,3 +716,22 @@
   .altaz-svg .svg-dir { font-size: 15px; }
 }
 .page-footer a { color: var(--muted); }
+
+/* ---------- จอใหญ่/ทีวี: ขยายทั้งหน้าตาม --ui ---------- */
+@media (min-width: 1600px) {
+  .page { zoom: var(--ui, 1); }
+}
+/* ---------- มือถือจอเล็กมาก ---------- */
+@media (max-width: 360px) {
+  .page { padding: 0 10px 36px; }
+  .page-top { margin: 0 -10px; padding-inline: 10px; }
+  .stage { padding: 12px; border-radius: 18px; }
+  .stage-head h2 { font-size: 18px; }
+  .seg-tabs button { padding: 7px 11px; font-size: 13px; }
+  .lesson-steps { display: none; }
+  .month-grid { grid-template-columns: repeat(4, 1fr); }
+  .compass { transform: scale(0.9); }
+  .angle-card > b { font-size: 32px; }
+  .hand-grid { gap: 8px; }
+  .hand-svg { width: 72px; height: 72px; }
+}
